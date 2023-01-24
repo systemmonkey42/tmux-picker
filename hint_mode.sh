@@ -8,8 +8,6 @@ last_pane_id=$3
 picker_window_id=$4
 pane_input_temp=$5
 
-eval "$(tmux show-env -g -s | grep ^PICKER)"
-
 match_lookup_table=$(mktemp)
 
 # exporting it so they can be properly deleted inside handle_exit trap
