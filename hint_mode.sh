@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+CURRENT_DIR="$(readlink -e "${BASH_SOURCE[0]%/*}")"
 
 current_pane_id=$1
 picker_pane_id=$2

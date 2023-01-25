@@ -4,7 +4,7 @@
 # HELPERS
 #
 
-CURRENT_DIR="${BASH_SOURCE[0]%/*}"
+CURRENT_DIR="$(readlink -e "${BASH_SOURCE[0]%/*}")"
 TMUX_PRINTER="$CURRENT_DIR/tmux-printer/tmux-printer"
 
 function set_tmux_env() {
