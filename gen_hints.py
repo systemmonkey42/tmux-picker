@@ -45,7 +45,7 @@ def generate_hints(num_hints_needed):
     yield from generate_codes(tree, code='')
 
 def generate_gawk_hints():
-    statement = '\nif'
+    statement = '\nfunction gen_hints() {\n   if'
     sizes = [alphabet_size, 30, 50, 80, 110, 150, 200, 300, 500, 1000]
     for num_hints_needed in sizes:
         hints_string = ' '.join(generate_hints(num_hints_needed))
@@ -53,9 +53,9 @@ def generate_gawk_hints():
             print(' else {')
         else:
             print('%s (num_hints_needed <= %d) {' % (statement, num_hints_needed))
-        print('    split("%s", HINTS]);' % (hints_string))
-        print('}', end='')
+        print('       split("%s", HINTS);' % (hints_string))
+        print('   }', end='')
         statement = ' else if'
-    print("")
+    print("\n}\n")
 
 generate_gawk_hints()

@@ -27,7 +27,7 @@ function extract_hints() {
     clear
     export NUM_HINTS_NEEDED=
     NUM_HINTS_NEEDED="$(get_pane_contents | gawk -f "$CURRENT_DIR/counter.awk")"
-    get_pane_contents | gawk -f "$CURRENT_DIR/hinter.awk" 3> "$match_lookup_table"
+    get_pane_contents | gawk -f "$CURRENT_DIR/gen_hints.awk" -f "$CURRENT_DIR/hinter.awk" 3> "$match_lookup_table"
 }
 
 function show_hints_again() {

@@ -4,7 +4,7 @@
 # HELPERS
 #
 
-CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+CURRENT_DIR="${BASH_SOURCE[0]%/*}"
 TMUX_PRINTER="$CURRENT_DIR/tmux-printer/tmux-printer"
 
 function set_tmux_env() {
@@ -20,6 +20,11 @@ function process_format () {
 
 function array_join() {
     local IFS="$1"; shift; echo "$*";
+}
+
+function gen_hint_map() {
+	[[ -f "${CURRENT_DIR}/gen_hints.awk" ]] ||
+		"${CURRENT_DIR}/gen_hints.py" > "${CURRENT_DIR}/gen_hints.awk"
 }
 
 #
@@ -76,6 +81,12 @@ BLACKLIST=(
 # "-n M-f" for Alt-F without prefix
 # "f" for prefix-F
 declare -a PICKER_KEY=("-n M-f" "-T copy-mode M-f" )
+
+#
+# Setup
+#
+
+gen_hint_map
 
 set_tmux_env PICKER_PATTERNS1 "$(array_join "|" "${PATTERNS_LIST1[@]}")"
 set_tmux_env PICKER_PATTERNS2 "$(array_join "|" "${PATTERNS_LIST2[@]}")"
