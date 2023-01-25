@@ -38,6 +38,7 @@ You can press:
     - `PATTERNS_LIST1` - regex patterns highlighted after pressing `PICKER_KEY`
     - `PATTERNS_LIST2` - regex patterns highlighted after pressing <kbd>SPACE</kbd> in hint mode 
     - `BLACKLIST` - regex pattern describing items that will not be highlighted
+    - `PICKER_ALT_COPY_COMMAND` - command to execute on highlighted item when pane is in a command or a mode
     - `PICKER_COPY_COMMAND` - command to execute on highlighted item
         - default is: `xclip -f -in -sel primary | xclip -in -sel clipboard`, which copies item to clipboard
     - `PICKER_COPY_COMMAND_UPPERCASE` - command to execute on highlighted item, when hint was typed using uppercase letters

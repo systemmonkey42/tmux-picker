@@ -60,10 +60,11 @@ function is_pane_zoomed() {
         | grep -c "^${pane_id}:active:zoomed$"
 }
 
-function zoom_pane() {
-    local pane_id=$1
+function pane_in_mode() {
+	local pane_id="$1"
 
-    tmux resize-pane -Z -t "$pane_id"
+	IFS=: read -r mode cmd < <(tmux display -t "${pane_id}" -p '#{pane_in_mode}:#{pane_current_command}')
+	[[ "${mode}" -ne 0 ]] || [[ "${cmd}" != "bash" ]]
 }
 
 function revert_to_original_pane() {
@@ -130,8 +131,10 @@ function run_picker_copy_command() {
     local result="$1"
 	local hint="$2"
 
-	if [[ "${hint}" != "${hint,,}" ]] && [ -n "$PICKER_COPY_COMMAND_UPPERCASE" ]; then
+	if [[ "${hint}" != "${hint,,}" ]] && [[ -n "$PICKER_COPY_COMMAND_UPPERCASE" ]]; then
         command_to_run="$PICKER_COPY_COMMAND_UPPERCASE"
+	elif pane_in_mode "${current_pane_id}" && [[ -n "${PICKER_ALT_COPY_COMMAND}" ]]; then
+        command_to_run="$PICKER_ALT_COPY_COMMAND"
     elif [[ -n "$PICKER_COPY_COMMAND" ]]; then
         command_to_run="$PICKER_COPY_COMMAND"
     fi
