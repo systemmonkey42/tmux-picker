@@ -33,9 +33,9 @@ function extract_hints() {
 function show_hints_again() {
     local picker_pane_id=$1
 
-    tmux swap-pane -s "$current_pane_id" -t "$picker_pane_id" # hide screen clearing glitch
+    tmux swap-pane -t "$current_pane_id" -s "$picker_pane_id" -Z
     extract_hints
-    tmux swap-pane -s "$current_pane_id" -t "$picker_pane_id"
+    tmux swap-pane -s "$current_pane_id" -t "$picker_pane_id" -Z
 }
 
 function show_hints_and_swap() {
@@ -43,7 +43,7 @@ function show_hints_and_swap() {
     picker_pane_id=$2
 
     extract_hints
-    tmux swap-pane -s "$current_pane_id" -t "$picker_pane_id"
+    tmux swap-pane -s "$current_pane_id" -t "$picker_pane_id" -Z
 }
 
 
@@ -68,14 +68,14 @@ function pane_in_mode() {
 }
 
 function revert_to_original_pane() {
-    tmux swap-pane -s "$current_pane_id" -t "$picker_pane_id"
+    tmux swap-pane -t "$current_pane_id" -s "$picker_pane_id" -Z
 
-    if [[ -n "$last_pane_id" ]]; then
-        tmux select-pane -t "$last_pane_id"
+	if (( pane_was_zoomed )); then
+		:
+	elif [[ -n "$last_pane_id" ]]; then
+		tmux select-pane -t "$last_pane_id"
         tmux select-pane -t "$current_pane_id"
     fi
-
-    [[ $pane_was_zoomed == "1" ]] && zoom_pane "$current_pane_id"
 }
 
 function handle_exit() {
@@ -122,7 +122,6 @@ export PICKER_BLACKLIST_PATTERNS="$PICKER_BLACKLIST_PATTERNS"
 
 pane_was_zoomed=$(is_pane_zoomed "$current_pane_id")
 show_hints_and_swap "$current_pane_id" "$picker_pane_id"
-(( pane_was_zoomed )) && zoom_pane "$picker_pane_id"
 
 hide_cursor
 input=''
