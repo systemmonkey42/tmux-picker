@@ -8,7 +8,7 @@ last_pane_id=$3
 picker_window_id=$4
 pane_input_temp=$5
 
-match_lookup_table=$(mktemp)
+match_lookup_table="$(mktemp)"
 
 # exporting it so they can be properly deleted inside handle_exit trap
 export match_lookup_table
@@ -16,18 +16,18 @@ export match_lookup_table
 function lookup_match() {
     local input=$1
 
-    input="$(echo "$input" | tr "A-Z" "a-z")"
-    grep -i "^$input:" $match_lookup_table | sed "s/^$input://" | head -n 1
+	sed -n -e "s/^${input,,}://p;T" -e q "$match_lookup_table"
 }
 
 function get_pane_contents() {
-    cat $pane_input_temp
+    cat "$pane_input_temp"
 }
 
 function extract_hints() {
     clear
-    export NUM_HINTS_NEEDED=$(get_pane_contents | gawk -f $CURRENT_DIR/counter.awk)
-    get_pane_contents | gawk -f $CURRENT_DIR/hinter.awk 3> $match_lookup_table
+    export NUM_HINTS_NEEDED=
+    NUM_HINTS_NEEDED="$(get_pane_contents | gawk -f "$CURRENT_DIR/counter.awk")"
+    get_pane_contents | gawk -f "$CURRENT_DIR/hinter.awk" 3> "$match_lookup_table"
 }
 
 function show_hints_again() {
@@ -69,7 +69,7 @@ function zoom_pane() {
 function revert_to_original_pane() {
     tmux swap-pane -s "$current_pane_id" -t "$picker_pane_id"
 
-    if [[ ! -z "$last_pane_id" ]]; then
+    if [[ -n "$last_pane_id" ]]; then
         tmux select-pane -t "$last_pane_id"
         tmux select-pane -t "$current_pane_id"
     fi
@@ -81,7 +81,7 @@ function handle_exit() {
     rm -rf "$pane_input_temp" "$match_lookup_table"
     revert_to_original_pane
 
-    if [[ ! -z "$result" ]]; then
+    if [[ -n "$result" ]]; then
         run_picker_copy_command "$result" "$input"
     fi
 
@@ -110,34 +110,33 @@ function is_valid_input() {
 }
 
 function hide_cursor() {
-    echo -n $(tput civis)
+    tput civis
 }
 
 trap "handle_exit" EXIT
 
-export PICKER_PATTERNS=$PICKER_PATTERNS1
-export PICKER_BLACKLIST_PATTERNS=$PICKER_BLACKLIST_PATTERNS
+# shellcheck disable=SC2153
+export PICKER_PATTERNS="$PICKER_PATTERNS1"
+export PICKER_BLACKLIST_PATTERNS="$PICKER_BLACKLIST_PATTERNS"
 
 pane_was_zoomed=$(is_pane_zoomed "$current_pane_id")
-show_hints_and_swap $current_pane_id $picker_pane_id
-[[ $pane_was_zoomed == "1" ]] && zoom_pane "$picker_pane_id"
+show_hints_and_swap "$current_pane_id" "$picker_pane_id"
+(( pane_was_zoomed )) && zoom_pane "$picker_pane_id"
 
 hide_cursor
 input=''
 
 function run_picker_copy_command() {
     local result="$1"
-    local hint="$2"
+	local hint="$2"
 
-    is_uppercase=$(echo "$input" | grep -E '^[a-z]+$' &> /dev/null; echo $?)
-
-    if [[ $is_uppercase == "1" ]] && [ ! -z "$PICKER_COPY_COMMAND_UPPERCASE" ]; then
+	if [[ "${hint}" != "${hint,,}" ]] && [ -n "$PICKER_COPY_COMMAND_UPPERCASE" ]; then
         command_to_run="$PICKER_COPY_COMMAND_UPPERCASE"
-    elif [ ! -z "$PICKER_COPY_COMMAND" ]; then
+    elif [[ -n "$PICKER_COPY_COMMAND" ]]; then
         command_to_run="$PICKER_COPY_COMMAND"
     fi
 
-    if [[ ! -z "$command_to_run" ]]; then
+    if [[ -n "$command_to_run" ]]; then
         tmux run-shell -b "printf '%s' '$result' | $command_to_run"
     fi
 }
@@ -166,22 +165,23 @@ while read -rsn1 char; do
         continue
     fi
 
-    if [[ $char == "$BACKSPACE" ]]; then
-        input=""
-        continue
-    elif [[ $char == "<ESC>" ]]; then
-            exit
-    elif [[ $char == "" ]]; then
-        if [ "$PICKER_PATTERNS" = "$PICKER_PATTERNS1" ]; then
-                export PICKER_PATTERNS=$PICKER_PATTERNS2;
-        else
-                export PICKER_PATTERNS=$PICKER_PATTERNS1;
-        fi
-        show_hints_again "$picker_pane_id"
-        continue
-    else
-        input="$input$char"
-    fi
+	if [[ $char == "$BACKSPACE" ]]; then
+		input=""
+		continue
+	elif [[ $char == "<ESC>" ]]; then
+		exit
+	elif [[ $char == "" ]]; then
+		if [ "$PICKER_PATTERNS" == "$PICKER_PATTERNS1" ]; then
+			# shellcheck disable=SC2153
+			export PICKER_PATTERNS="$PICKER_PATTERNS2";
+		else
+			export PICKER_PATTERNS="$PICKER_PATTERNS1";
+		fi
+		show_hints_again "$picker_pane_id"
+		continue
+	else
+		input="$input$char"
+	fi
 
     result=$(lookup_match "$input")
 
