@@ -97,5 +97,6 @@ set_tmux_env PICKER_HIGHLIGHT_FORMAT "$(tput setaf 252;tput setab 17; echo $'%s\
 # BIND
 #
 
+# shellcheck disable=SC2086
 tmux bind $PICKER_KEY run-shell "$CURRENT_DIR/tmux-picker.sh"
 
