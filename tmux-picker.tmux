@@ -97,5 +97,5 @@ set_tmux_env PICKER_HIGHLIGHT_FORMAT "$(tput setaf 252;tput setab 17; echo $'%s\
 # BIND
 #
 
-tmux bind $(echo "$PICKER_KEY") run-shell "$CURRENT_DIR/tmux-picker.sh"
+tmux bind $PICKER_KEY run-shell "$CURRENT_DIR/tmux-picker.sh"
 
