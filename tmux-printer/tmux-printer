@@ -3,7 +3,7 @@
 CURRENT_DIR="$(readlink -e "${BASH_SOURCE[0]%/*}")"
 
 if [[ $1 == '--debug' ]]; then
-  echo "$*" | gawk -f $CURRENT_DIR/tmux-printer.awk
+  echo "$*" | gawk -f "$CURRENT_DIR/tmux-printer.awk"
 else
-  eval "echo -e \"$(echo "$*" | gawk -f $CURRENT_DIR/tmux-printer.awk)\""
+  eval "echo -e \"$(echo "$*" | gawk -f "$CURRENT_DIR/tmux-printer.awk")\""
 fi
