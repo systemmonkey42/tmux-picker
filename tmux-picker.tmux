@@ -75,7 +75,7 @@ BLACKLIST=(
 
 # "-n M-f" for Alt-F without prefix
 # "f" for prefix-F
-PICKER_KEY="-n M-f" 
+declare -a PICKER_KEY=("-n M-f" "-T copy-mode M-f" )
 
 set_tmux_env PICKER_PATTERNS1 "$(array_join "|" "${PATTERNS_LIST1[@]}")"
 set_tmux_env PICKER_PATTERNS2 "$(array_join "|" "${PATTERNS_LIST2[@]}")"
@@ -98,5 +98,6 @@ set_tmux_env PICKER_HIGHLIGHT_FORMAT "$(tput setaf 252;tput setab 17; echo $'%s\
 #
 
 # shellcheck disable=SC2086
-tmux bind $PICKER_KEY run-shell "$CURRENT_DIR/tmux-picker.sh"
-
+for key in "${PICKER_KEY[@]}"; do
+	tmux bind ${key} run-shell "$CURRENT_DIR/tmux-picker.sh"
+done
