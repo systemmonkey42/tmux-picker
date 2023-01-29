@@ -68,6 +68,13 @@ function prompt_picker_for_pane() {
     echo $picker_pane_id
 }
 
+function already_open()
+{
+	read -r _ < <(tmux list-windows -f "#{==:#{window_name},[picker]}" -F1 2>/dev/null)
+}
+
+already_open && exit 0
+
 last_pane_id=$(tmux display -pt':.{last}' '#{pane_id}' 2>/dev/null)
 current_pane_id=$(tmux list-panes -F "#{pane_id}:#{?pane_active,active,nope}" | grep active | cut -d: -f1)
 picker_pane_id=$(prompt_picker_for_pane "$current_pane_id" "$last_pane_id")
