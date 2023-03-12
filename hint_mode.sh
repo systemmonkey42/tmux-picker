@@ -24,23 +24,25 @@ function get_pane_contents() {
 }
 
 function extract_hints() {
+	local prefix="$1"
     clear
     export NUM_HINTS_NEEDED=
     NUM_HINTS_NEEDED="$(get_pane_contents | gawk -f "$CURRENT_DIR/counter.awk")"
-    get_pane_contents | gawk -f "$CURRENT_DIR/gen_hints.awk" -f "$CURRENT_DIR/hinter.awk" 3> "$match_lookup_table"
+    get_pane_contents | gawk -f "$CURRENT_DIR/gen_hints.awk" -f "$CURRENT_DIR/hinter.awk" prefix="${prefix}" 3> "$match_lookup_table"
 }
 
 function show_hints_again() {
-    local picker_pane_id=$1
+    local picker_pane_id="$1"
+	local hint_prefix="$2"
 
     tmux swap-pane -t "$current_pane_id" -s "$picker_pane_id" -Z
-    extract_hints
+    extract_hints "${hint_prefix}"
     tmux swap-pane -s "$current_pane_id" -t "$picker_pane_id" -Z
 }
 
 function show_hints_and_swap() {
-    current_pane_id=$1
-    picker_pane_id=$2
+    current_pane_id="$1"
+    picker_pane_id="$2"
 
     extract_hints
     tmux swap-pane -s "$current_pane_id" -t "$picker_pane_id" -Z
@@ -146,6 +148,8 @@ function run_picker_copy_command() {
 while read -rsn1 char; do
     if [[ $char == "$BACKSPACE" ]]; then
         input=""
+		show_hints_again "$picker_pane_id" "$input"
+		continue
     fi
 
     # Escape sequence, flush input
@@ -179,7 +183,7 @@ while read -rsn1 char; do
 		else
 			export PICKER_PATTERNS="$PICKER_PATTERNS1";
 		fi
-		show_hints_again "$picker_pane_id"
+		show_hints_again "$picker_pane_id" "$input"
 		continue
 	else
 		input="$input$char"
@@ -188,6 +192,7 @@ while read -rsn1 char; do
     result=$(lookup_match "$input")
 
     if [[ -z $result ]]; then
+		show_hints_again "$picker_pane_id" "$input"
         continue
     fi
 

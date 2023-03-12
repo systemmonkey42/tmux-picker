@@ -103,17 +103,23 @@ set_tmux_env PICKER_COPY_COMMAND_UPPERCASE "bash -c 'arg=\$(cat -); tmux split-w
 #set_tmux_env PICKER_HINT_FORMAT "$(process_format "#[fg=black,bg=red,bold]%s")"
 set_tmux_env PICKER_HINT_FORMAT "$(
     tput setaf 252
-    tput setab 25
-    echo '%s'
+    tput setab 19
+    echo -n '%s'
+)"
+set_tmux_env PICKER_HINT_PREFIX_FORMAT "$(
+    tput setaf 252
+    tput setab 88
+    echo -n '%s'
 )"
 set_tmux_env PICKER_HINT_FORMAT_NOCOLOR "%s"
 
 #set_tmux_env PICKER_HIGHLIGHT_FORMAT "$(process_format "#[fg=black,bg=color227,normal]%s")"
 set_tmux_env PICKER_HIGHLIGHT_FORMAT "$(process_format "#[fg=black,bg=yellow,bold]%s")"
 set_tmux_env PICKER_HIGHLIGHT_FORMAT "$(
-    tput setaf 252
-    tput setab 17
-    echo $'%s\x1b[0m'
+    tput setaf 215
+    tput setab 235
+    echo -n '%s'
+    tput sgr0
 )"
 
 #

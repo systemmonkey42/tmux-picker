@@ -7,7 +7,7 @@ import heapq
 # This script builds prefix code for given number of hints using n-aray Huffman Coding.
 # We precompute hints for hinter.awk to make it fast (and to avoid implementing priority queue in awk).
 
-alphabet = list('asdwferghlpkojiuy')
+alphabet = list('asdwferghj')
 alphabet_size = len(alphabet)
 
 def generate_hints(num_hints_needed):
