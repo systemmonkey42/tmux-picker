@@ -65,7 +65,8 @@ PATTERNS_LIST1=(
     "(()[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})"                   # UUIDs
     "(()[0-9a-f]{7,40})"                                                                 # hex numbers (e.g. git hashes)
     "(()(https?://|git@|git://|ssh://|ftp://|file:///)[[:alnum:]?=%/_.:,;~@!#$&)(*+-]*)" # URLs
-    "(()[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3})"         # IP adresses
+    "(()[[:digit:]]{1,3}\\.[[:digit:]]{1,3}\\.[[:digit:]]{1,3}\\.[[:digit:]]{1,3})"      # IPv4 adresses
+    "(()([[:digit:]a-f]{0,4}:){3,})([[:digit:]a-f]{1,4})"                                # IPv6 addresses
     "(()0x[0-9a-fA-F]+)"                                                                 # hex numbers
 )
 
