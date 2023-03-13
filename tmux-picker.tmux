@@ -54,14 +54,14 @@ function gen_hint_map() {
 #   ([0-9]+)
 #   [0-9]+
 
-CS=$'\x1b'"\[[0-9;]{1,9}m" # color escape sequence
 FILE_CHARS="[[:alnum:]_.#$%&+=/@~-]"
 FILE_START_CHARS="[[:space:]:<>)(&#'\"]"
 
 # default patterns group
 PATTERNS_LIST1=(
-    "(($CS|^|$FILE_START_CHARS)$FILE_CHARS*/$FILE_CHARS+)"                               # file paths with /
-    "(()[0-9]+\.[0-9]{3,}|[0-9]{5,})"                                                    # long numbers
+    "((^|$FILE_START_CHARS)$FILE_CHARS*/$FILE_CHARS+)"                                   # file paths with /
+    "((^|\y|[^\\[])([1-9][0-9]*(\\.[0-9]+)?[kKmMgGtT])\\y)"                              # long numbers
+    "((^|\y|[^\\[])[0-9]+\\.[0-9]{3,}|[0-9]{5,})"                                        # long numbers
     "(()[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})"                   # UUIDs
     "(()[0-9a-f]{7,40})"                                                                 # hex numbers (e.g. git hashes)
     "(()(https?://|git@|git://|ssh://|ftp://|file:///)[[:alnum:]?=%/_.:,;~@!#$&)(*+-]*)" # URLs
@@ -72,8 +72,8 @@ PATTERNS_LIST1=(
 
 # alternative patterns group (shown after pressing the SPACE key)
 PATTERNS_LIST2=(
-    "(($CS|^|$FILE_START_CHARS)$FILE_CHARS*/$FILE_CHARS+)"                               # file paths with /
-    "(($CS|^|$FILE_START_CHARS)$FILE_CHARS{5,})"                                         # anything that looks like file/file path but not too short
+    "((^|$FILE_START_CHARS)$FILE_CHARS*/$FILE_CHARS+)"                                   # file paths with /
+    "((^|$FILE_START_CHARS)$FILE_CHARS{5,})"                                             # anything that looks like file/file path but not too short
     "(()(https?://|git@|git://|ssh://|ftp://|file:///)[[:alnum:]?=%/_.:,;~@!#$&)(*+-]*)" # URLs
 )
 

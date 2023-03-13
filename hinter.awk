@@ -19,17 +19,87 @@ BEGIN {
 	hint_lookup = ""
 }
 
+# Trivial "join()", all elements, no separators
+function concat(a) {
+	str=""
+	for(i=0;i<length(a);i++) {
+		str=str a[i]
+	}
+	return str
+}
+
+# Map/Unmap ansi code positions
+# The map_code() and accompanying unmap() functions are used to
+# 1. Save the input to `line`
+# 2. Create a copy with all ansi color codes stripped in `cline`
+# 3. Provide a mapping table to convert an offset into `cline` back
+#    into an offset into `line`.
+# After match()'ing a string in `cline`, the RSTART and RLENGTH values
+# are unmapp()ed, so the original text can be extracted from `line`.
+
+function map_code(l) {
+	delete fmap
+	delete omap
+
+	# Save input line
+	line = l
+
+	# Create two tables, `f` contained the set of ansi color codes, and `s` containing the plain text.
+	patsplit(l,f,/\x1b\[[0-9;]+m/,s)
+
+	# Create a plain copy by concatenating the plain text
+	cline = concat(s)
+
+	# Create the mapping table such char cline[x] == line[unmap(x)]
+	x = 0
+	y = 0
+	n = 0
+	for(i=0;i<length(s);i++) {
+		x += length(f[i])
+		y += length(s[i])
+		fmap[n] = x
+		omap[n] = y
+		if( i == 0 || length(s[i]) > 0 ) {
+			n++
+		}
+	}
+	# Handle terminator - last value is highest possible index
+	fmap[n] = length(l)
+}
+
+# Convert m to m`, such that cline[m] == line[m`].
+# Note that line[m`] may in fact point to the ansi color code string preceeding the
+# matched text.  This is important because leading ansi codes is well handled, while
+# trailing ansi codes are less well handled.
+function unmap(m) {
+	o=0
+	for(_m=0;_m < length(omap); _m++) {
+		if(m>omap[_m]) {
+			o = fmap[_m+1]
+		}
+	}
+	return m+o
+}
+
 {
-	line = $0;
+	# Process initial input line
+	map_code($0)
+
 	output_line = "";
 	post_match = line;
 	skipped_prefix = "";
 
 	# Inserts hints into `output_line` and accumulate hints in `hint_lookup`
-	while (match(line, highlight_patterns, matches)) {
-		pre_match = skipped_prefix substr(line, 1, RSTART - 1);
-		post_match = substr(line, RSTART + RLENGTH);
+	while (match(cline, highlight_patterns, matches)) {
+		# Convert matched text position back to original indicies
+		pstart = unmap(RSTART)
+		pend = unmap(RSTART+RLENGTH)
+		pre_match = skipped_prefix substr(line, 1, pstart-1);
+		post_match = substr(line, pend);
+		# The match will be highlighted, and doesn't make sense to include color codes
+		# from original line.
 		line_match = matches[0]
+		#line_match = substr(line,pstart,pend-pstart)
 
 		if (line_match !~ blacklist) {
 			# All sub-patterns start with a prefix group (sometimes empty) that should not be highlighted, e.g.
@@ -77,7 +147,8 @@ BEGIN {
 		} else {
 			skipped_prefix = pre_match line_match; # we need it only to fix colors
 		}
-		line = post_match;
+		# Prepare to keep processing remaining text
+		map_code(post_match);
 	}
 
 	printf "\n%s", (output_line skipped_prefix post_match)
