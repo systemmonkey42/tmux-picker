@@ -14,7 +14,7 @@ match_lookup_table="$(mktemp)"
 export match_lookup_table
 
 function lookup_match() {
-    local input=$1
+    local input="$1"
 
 	sed -n -e "s/^${input,,}://p;T" -e q "$match_lookup_table"
 }
@@ -91,6 +91,11 @@ function handle_exit() {
     tmux kill-window -t "$picker_window_id"
 }
 
+function is_valid_choice() {
+	local input="$1"
+
+	! sed -n -e "/^${input,,}[^:]*:/q1" "$match_lookup_table"
+}
 
 function is_valid_input() {
     local input=$1
@@ -177,6 +182,7 @@ while read -rsn1 char; do
 	elif [[ $char == "<ESC>" ]]; then
 		exit
 	elif [[ $char == "" ]]; then
+		input=""
 		if [ "$PICKER_PATTERNS" == "$PICKER_PATTERNS1" ]; then
 			# shellcheck disable=SC2153
 			export PICKER_PATTERNS="$PICKER_PATTERNS2";
@@ -186,7 +192,9 @@ while read -rsn1 char; do
 		show_hints_again "$picker_pane_id" "$input"
 		continue
 	else
-		input="$input$char"
+		if is_valid_choice "${input}${char}"; then
+			input="${input}${char}"
+		fi
 	fi
 
     result=$(lookup_match "$input")
