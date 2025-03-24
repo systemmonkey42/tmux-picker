@@ -54,16 +54,18 @@ function gen_hint_map() {
 #   ([0-9]+)
 #   [0-9]+
 
-FILE_CHARS="[[:alnum:]_.#$%&+=/@~-]"
+FILE_CHARS="[[:alnum:]_.#$%&+=@~-]"
+FILE_PATH_CHARS="[[:alnum:]_.#$%&+=/@~-]"
 FILE_START_CHARS="[[:space:]:<>)(&#'\"]"
 
 # default patterns group
 PATTERNS_LIST1=(
-    "((^|$FILE_START_CHARS)$FILE_CHARS*/$FILE_CHARS+)"                                   # file paths with /
+    "((^|$FILE_START_CHARS)\<$FILE_CHARS{3,})"                                           # anything that looks like file/file path but not too short
+    "((^|$FILE_START_CHARS)$FILE_PATH_CHARS*/$FILE_CHARS+)"                              # file paths with /
     "((^|\y|[^\\[])([1-9][0-9]*(\\.[0-9]+)?[kKmMgGtT])\\y)"                              # long numbers
     "((^|\y|[^\\[])[0-9]+\\.[0-9]{3,}|[0-9]{5,})"                                        # long numbers
     "(()[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})"                   # UUIDs
-    "(()[0-9a-f]{7,40})"                                                                 # hex numbers (e.g. git hashes)
+    "(()((0x)?(([0-9a-f]{6,15})|([0-9a-f]{32})|([0-9a-f]{40})|([0-9a-f]{64}))))"         # HEX strings (crc/sha/md5)
     "(()(https?://|git@|git://|ssh://|ftp://|file:///)[[:alnum:]?=%/_.:,;~@!#$&)(*+-]*)" # URLs
     "(()[[:digit:]]{1,3}\\.[[:digit:]]{1,3}\\.[[:digit:]]{1,3}\\.[[:digit:]]{1,3})"      # IPv4 adresses
     "(()([[:digit:]a-f]{0,4}:){3,})([[:digit:]a-f]{1,4})"                                # IPv6 addresses
@@ -73,11 +75,11 @@ PATTERNS_LIST1=(
 # alternative patterns group (shown after pressing the SPACE key)
 PATTERNS_LIST2=(
     "((^|$FILE_START_CHARS)$FILE_CHARS*/$FILE_CHARS+)"                                   # file paths with /
-    "((^|$FILE_START_CHARS)$FILE_CHARS{5,})"                                             # anything that looks like file/file path but not too short
+    "((^|$FILE_START_CHARS)\<$FILE_CHARS{5,})"                                           # anything that looks like file/file path but not too short
     "(()(https?://|git@|git://|ssh://|ftp://|file:///)[[:alnum:]?=%/_.:,;~@!#$&)(*+-]*)" # URLs
 )
 
-# items that will not be hightlighted
+# items that will not be highlighted
 BLACKLIST=(
     "(deleted|modified|renamed|copied|master|mkdir|[Cc]hanges|update|updated|committed|commit|working|discard|directory|staged|add/rm|checkout)"
 )
