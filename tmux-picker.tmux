@@ -60,7 +60,7 @@ FILE_START_CHARS="[[:space:]:<>)(&#'\"]"
 
 # default patterns group
 PATTERNS_LIST1=(
-    "((^|$FILE_START_CHARS)\<$FILE_CHARS{3,})"                                           # anything that looks like file/file path but not too short
+    "((^|$FILE_START_CHARS)\<$FILE_CHARS{5,})"                                           # anything that looks like file/file path but not too short
     "((^|$FILE_START_CHARS)$FILE_PATH_CHARS*/$FILE_CHARS+)"                              # file paths with /
     "((^|\y|[^\\[])([1-9][0-9]*(\\.[0-9]+)?[kKmMgGtT])\\y)"                              # long numbers
     "((^|\y|[^\\[])[0-9]+\\.[0-9]{3,}|[0-9]{5,})"                                        # long numbers
