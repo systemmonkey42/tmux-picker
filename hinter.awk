@@ -88,12 +88,18 @@ function unmap(m) {
 	output_line = "";
 	post_match = line;
 	skipped_prefix = "";
+	skipped_prompt = 0;
+
+	# Try to skip shell prompts
+	if (match(cline,"^[a-z]+\\.[a-zA-Z0-9_]+ .*[$#] ?")) {
+		skipped_prompt=RLENGTH
+	}
 
 	# Inserts hints into `output_line` and accumulate hints in `hint_lookup`
-	while (match(cline, highlight_patterns, matches)) {
+	while (match(substr(cline,skipped_prompt+1), highlight_patterns, matches)) {
 		# Convert matched text position back to original indicies
-		pstart = unmap(RSTART)
-		pend = unmap(RSTART+RLENGTH)
+		pstart = unmap(RSTART+skipped_prompt)
+		pend = unmap(RSTART+RLENGTH+skipped_prompt)
 		pre_match = skipped_prefix substr(line, 1, pstart-1);
 		post_match = substr(line, pend);
 		# The match will be highlighted, and doesn't make sense to include color codes
