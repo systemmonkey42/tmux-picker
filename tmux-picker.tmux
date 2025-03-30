@@ -81,7 +81,7 @@ PATTERNS_LIST2=(
 
 # items that will not be highlighted
 BLACKLIST=(
-    "(deleted|modified|renamed|copied|master|mkdir|[Cc]hanges|update|updated|committed|commit|working|discard|directory|staged|add/rm|checkout)"
+    "COMMAND|deleted|modified|renamed|copied|master|mkdir|[Cc]hanges|update|updated|committed|commit|working|discard|directory|staged|add/rm|checkout)"
 )
 
 # "-n M-f" for Alt-F without prefix
